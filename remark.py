@@ -17,7 +17,7 @@ def sys_encode(content):
 
 
 def run_command(command):
-    #os.system('start /B '+command)
+    #print(f"sys运行:{command}")
     run(command,shell=True)
 
 
@@ -50,6 +50,7 @@ def add_comment(fpath=None, comment=None):
 
     # 判断路径是否存在文件夹
     if not os.path.isdir(fpath):
+        print("你输入的不是一个正确路径")
         return "你输入的不是一个正确路径"
 
     setting_file_path = get_setting_file_path(fpath)
@@ -60,10 +61,12 @@ def add_comment(fpath=None, comment=None):
         run_command('attrib \"' + setting_file_path + '\" -s -h')
 
     if not comment:
+        print("备注不要为空哦")
         return "备注不要为空哦"
 
     update_folder_comment(fpath, comment)
 
+    print("备注添加成功")
     return "备注添加成功"
 
 
