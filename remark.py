@@ -5,6 +5,7 @@ __author__ = 'Piratf'
 
 import sys
 import os
+from subprocess import run
 
 # 获取系统编码，确保备注不会出现乱码
 defEncoding = sys.getfilesystemencoding()
@@ -16,12 +17,8 @@ def sys_encode(content):
 
 
 def run_command(command):
-    os.system(command)
-
-
-def re_enter_message(message):
-    print(sys_encode(u" * " + message))
-    print(sys_encode(u" * 继续处理或按 ctrl + c 退出程序") + os.linesep)
+    #os.system('start /B '+command)
+    run(command,shell=True)
 
 
 def get_setting_file_path(fpath):
@@ -40,26 +37,20 @@ def update_folder_comment(fpath, comment):
     run_command('attrib \"' + setting_file_path + '\" +s +h')
     run_command('attrib \"' + fpath + '\" +s ')
 
-    print(sys_encode(u"备注添加成功~"))
-    print(sys_encode(u"备注可能过一会才会显示，不要着急"))
-
 
 def add_comment(fpath=None, comment=None):
-    input_path_msg = sys_encode(u"请输入文件夹路径(或拖动文件夹到这里): ")
-    input_comment_msg = sys_encode(u"请输入文件夹备注:")
 
     # 输入文件夹路径
     if fpath is None:
-        fpath = input(input_path_msg)
-    
+        return "输入目标文件夹路径"
+
     # 去除路径左右两端的引号
     fpath = fpath.strip('\"')
     fpath = fpath.strip('\'')
 
     # 判断路径是否存在文件夹
-    while not os.path.isdir(fpath):
-        re_enter_message(f"你输入的\"{fpath}\"不是一个文件夹路径")
-        fpath = input(input_path_msg)
+    if not os.path.isdir(fpath):
+        return "你输入的不是一个正确路径"
 
     setting_file_path = get_setting_file_path(fpath)
 
@@ -68,28 +59,14 @@ def add_comment(fpath=None, comment=None):
         # 去除保护属性
         run_command('attrib \"' + setting_file_path + '\" -s -h')
 
-    # 输入文件夹的备注
-    if comment is None:
-        comment = input(input_comment_msg)
-
-    while not comment:
-        re_enter_message(u"备注不要为空哦")
-        comment = input(input_comment_msg)
+    if not comment:
+        return "备注不要为空哦"
 
     update_folder_comment(fpath, comment)
+
+    return "备注添加成功"
 
 
 if __name__ == '__main__':
     if len(sys.argv) == 3:
         add_comment(sys.argv[1], sys.argv[2])
-    elif len(sys.argv) == 1:
-        while True:
-            try:
-                add_comment()
-            except KeyboardInterrupt:
-                print(sys_encode(u" ❤ 感谢使用"))
-                break
-            re_enter_message("成功完成一次备注")
-    else:
-        print('Usage .1: %s [folder path] [content]' % sys.argv[0])
-        print('Usage .2: %s' % sys.argv[0])
